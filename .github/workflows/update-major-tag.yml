@@ -1,0 +1,19 @@
+name: Update major version tag
+
+on:
+  push:
+    tags:
+      - "v*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  update-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Actions-R-Us/actions-tagger@v2
+        with:
+          publish_latest_tag: true
