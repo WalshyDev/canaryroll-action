@@ -19816,18 +19816,26 @@ var CanaryRollClient = class {
   baseUrl;
   token;
   teamId;
-  constructor(baseUrl, token, teamId) {
+  cfAccess;
+  constructor(baseUrl, token, teamId, cfAccess) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
     this.token = token;
     this.teamId = teamId;
+    this.cfAccess = cfAccess;
   }
   async request(path, options = {}) {
     const url = `${this.baseUrl}/api/teams/${this.teamId}${path}`;
+    const accessHeaders = {};
+    if (this.cfAccess) {
+      accessHeaders["CF-Access-Client-Id"] = this.cfAccess.clientId;
+      accessHeaders["CF-Access-Client-Secret"] = this.cfAccess.clientSecret;
+    }
     const res = await fetch(url, {
       ...options,
       headers: {
         Authorization: `Bearer ${this.token}`,
         "Content-Type": "application/json",
+        ...accessHeaders,
         ...options.headers
       }
     });
@@ -19890,8 +19898,17 @@ async function run() {
     const wait = core.getInput("wait") === "true";
     const waitTimeout = parseInt(core.getInput("wait-timeout") || "1800", 10);
     const pollInterval = parseInt(core.getInput("poll-interval") || "15", 10);
+    const cfAccessClientId = core.getInput("cf-access-client-id");
+    const cfAccessClientSecret = core.getInput("cf-access-client-secret");
     core.setSecret(apiToken);
-    const client = new CanaryRollClient(apiUrl, apiToken, teamId);
+    if (cfAccessClientSecret) {
+      core.setSecret(cfAccessClientSecret);
+    }
+    let cfAccess;
+    if (cfAccessClientId && cfAccessClientSecret) {
+      cfAccess = { clientId: cfAccessClientId, clientSecret: cfAccessClientSecret };
+    }
+    const client = new CanaryRollClient(apiUrl, apiToken, teamId, cfAccess);
     core.info("Creating deployment...");
     const deployment = await client.createDeployment(workerId, {
       versionId,

@@ -51,6 +51,12 @@ inputs:
     description: 'Seconds between status polls when waiting (only used if wait=true)'
     required: false
     default: '15'
+  cf-access-client-id:
+    description: 'Cloudflare Access client ID (for Access-protected instances)'
+    required: false
+  cf-access-client-secret:
+    description: 'Cloudflare Access client secret (for Access-protected instances)'
+    required: false
 
 outputs:
   release-id:

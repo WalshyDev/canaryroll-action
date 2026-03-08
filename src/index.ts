@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { CanaryRollClient } from './client.js';
-import type { Deployment } from './client.js';
+import type { CfAccessCredentials, Deployment } from './client.js';
 
 const TERMINAL_STATUSES = new Set(['completed', 'rolled_back', 'failed']);
 
@@ -31,9 +31,20 @@ async function run(): Promise<void> {
 		const waitTimeout = parseInt(core.getInput('wait-timeout') || '1800', 10);
 		const pollInterval = parseInt(core.getInput('poll-interval') || '15', 10);
 
-		core.setSecret(apiToken);
+		const cfAccessClientId = core.getInput('cf-access-client-id');
+		const cfAccessClientSecret = core.getInput('cf-access-client-secret');
 
-		const client = new CanaryRollClient(apiUrl, apiToken, teamId);
+		core.setSecret(apiToken);
+		if (cfAccessClientSecret) {
+			core.setSecret(cfAccessClientSecret);
+		}
+
+		let cfAccess: CfAccessCredentials | undefined;
+		if (cfAccessClientId && cfAccessClientSecret) {
+			cfAccess = { clientId: cfAccessClientId, clientSecret: cfAccessClientSecret };
+		}
+
+		const client = new CanaryRollClient(apiUrl, apiToken, teamId, cfAccess);
 
 		// 1. Create deployment
 		core.info('Creating deployment...');

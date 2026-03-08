@@ -43,24 +43,37 @@ export interface CreateDeploymentParams {
 	ticketUrl?: string;
 }
 
+export interface CfAccessCredentials {
+	clientId: string;
+	clientSecret: string;
+}
+
 export class CanaryRollClient {
 	private baseUrl: string;
 	private token: string;
 	private teamId: string;
+	private cfAccess?: CfAccessCredentials;
 
-	constructor(baseUrl: string, token: string, teamId: string) {
+	constructor(baseUrl: string, token: string, teamId: string, cfAccess?: CfAccessCredentials) {
 		this.baseUrl = baseUrl.replace(/\/+$/, '');
 		this.token = token;
 		this.teamId = teamId;
+		this.cfAccess = cfAccess;
 	}
 
 	private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
 		const url = `${this.baseUrl}/api/teams/${this.teamId}${path}`;
+		const accessHeaders: Record<string, string> = {};
+		if (this.cfAccess) {
+			accessHeaders['CF-Access-Client-Id'] = this.cfAccess.clientId;
+			accessHeaders['CF-Access-Client-Secret'] = this.cfAccess.clientSecret;
+		}
 		const res = await fetch(url, {
 			...options,
 			headers: {
 				Authorization: `Bearer ${this.token}`,
 				'Content-Type': 'application/json',
+				...accessHeaders,
 				...options.headers,
 			},
 		});
