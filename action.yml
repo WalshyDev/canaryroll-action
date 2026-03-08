@@ -46,11 +46,11 @@ inputs:
   wait-timeout:
     description: 'Maximum seconds to wait for deployment completion (only used if wait=true)'
     required: false
-    default: '1800'
+    default: '5400'
   poll-interval:
     description: 'Seconds between status polls when waiting (only used if wait=true)'
     required: false
-    default: '15'
+    default: '30'
   cf-access-client-id:
     description: 'Cloudflare Access client ID (for Access-protected instances)'
     required: false

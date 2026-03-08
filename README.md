@@ -62,20 +62,23 @@ jobs:
 
 ## Inputs
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `api-token` | Yes | | API token (`crt_*` team token or `cru_*` user token) |
-| `team-id` | Yes | | Team ID or slug |
-| `worker-id` | Yes | | Worker ID registered in CanaryRoll |
-| `version-id` | Yes | | Cloudflare Worker version ID to deploy |
-| `plan` | No | Worker default | Rollout plan ID or slug |
-| `auto-advance` | No | `true` | Auto-advance through rollout steps |
-| `auto-start` | No | `false` | Start the deployment immediately after creation |
-| `name` | No | | Release name |
-| `ticket-url` | No | | Associated ticket/issue URL |
-| `wait` | No | `false` | Wait for deployment to complete (see warning below) |
-| `wait-timeout` | No | `1800` | Max seconds to wait (only with `wait: true`) |
-| `poll-interval` | No | `15` | Seconds between status polls (only with `wait: true`) |
+| Input           | Required | Default        | Description                                           |
+|-----------------|----------|----------------|-------------------------------------------------------|
+| `api-token`     | Yes      |                | API token (`crt_*` team token or `cru_*` user token)  |
+| `team-id`       | Yes      |                | Team ID or slug[^1]                                   |
+| `worker-id`     | Yes      |                | Worker tag[^2]                                        |
+| `version-id`    | Yes      |                | Cloudflare Worker version ID to deploy                |
+| `plan`          | No       | Worker default | Rollout plan ID or slug                               |
+| `auto-advance`  | No       | `true`         | Auto-advance through rollout steps                    |
+| `auto-start`    | No       | `false`        | Start the deployment immediately after creation       |
+| `name`          | No       |                | Release name                                          |
+| `ticket-url`    | No       |                | Associated ticket/issue URL                           |
+| `wait`          | No       | `false`        | Wait for deployment to complete (see warning below)   |
+| `wait-timeout`  | No       | `5400`         | Max seconds to wait (only with `wait: true`)          |
+| `poll-interval` | No       | `30`           | Seconds between status polls (only with `wait: true`) |
+
+[^1]: You can find the team slug in the dashboard URL - `canaryroll.com/teams/{TEAM_ID}`
+[^2]: You can find the Worker tag in the CanaryRoll dashboard when viewing your Worker, it'll be on the right info panel - "Worker Tag"
 
 ## Outputs
 
@@ -126,6 +129,6 @@ Store it as a GitHub Actions secret (e.g. `CANARYROLL_TOKEN`).
 
 ```bash
 npm install
-npm run build    # Compile with ncc
+npm run build
 npm run typecheck
 ```
