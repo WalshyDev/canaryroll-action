@@ -1,0 +1,65 @@
+name: 'CanaryRoll Deploy'
+description: 'Trigger a gradual deployment via CanaryRoll for Cloudflare Workers'
+
+branding:
+  icon: 'upload-cloud'
+  color: 'orange'
+
+inputs:
+  api-url:
+    description: 'CanaryRoll instance URL (e.g. https://canaryroll.example.com)'
+    required: false
+    default: 'https://canaryroll.com'
+  api-token:
+    description: 'CanaryRoll API token (team token crt_* or user token cru_*)'
+    required: true
+  team-id:
+    description: 'Team ID or slug'
+    required: true
+  worker-id:
+    description: 'Worker ID (registered in CanaryRoll)'
+    required: true
+  version-id:
+    description: 'Cloudflare Worker version ID to deploy'
+    required: true
+  plan:
+    description: 'Rollout plan ID or slug (defaults to worker default plan)'
+    required: false
+  auto-advance:
+    description: 'Whether to auto-advance through rollout steps'
+    required: false
+    default: true
+  name:
+    description: 'Optional release name'
+    required: false
+  ticket-url:
+    description: 'Optional ticket/issue URL to associate with the deployment'
+    required: false
+  auto-start:
+    description: 'Automatically start the deployment after creation and preflight checks pass. If false, the deployment is left in pending status for manual start via the dashboard.'
+    required: false
+    default: false
+  wait:
+    description: 'Wait for the deployment to complete before finishing the action'
+    required: false
+    default: false
+  wait-timeout:
+    description: 'Maximum seconds to wait for deployment completion (only used if wait=true)'
+    required: false
+    default: '1800'
+  poll-interval:
+    description: 'Seconds between status polls when waiting (only used if wait=true)'
+    required: false
+    default: '15'
+
+outputs:
+  release-id:
+    description: 'The created release ID'
+  release-url:
+    description: 'URL to view the release in the CanaryRoll dashboard'
+  status:
+    description: 'Release status (pending, in_progress, completed, rolled_back, failed)'
+
+runs:
+  using: 'node24'
+  main: 'dist/index.js'

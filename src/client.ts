@@ -1,0 +1,106 @@
+export interface Deployment {
+	id: string;
+	workerId: string;
+	teamId: string;
+	planId: string;
+	cfVersionId: string;
+	cfPreviousVersionId: string | null;
+	status: 'pending' | 'in_progress' | 'paused' | 'completed' | 'rolled_back' | 'failed';
+	currentStep: number;
+	autoAdvance: boolean;
+	name: string | null;
+	ticketUrl: string | null;
+	stepsSnapshot: Array<{ percentage: number; waitSeconds: number }>;
+	startedAt: string | null;
+	completedAt: string | null;
+	createdAt: string;
+}
+
+export interface DeploymentEvent {
+	id: string;
+	deploymentId: string;
+	eventType: string;
+	stepIndex: number | null;
+	percentage: number | null;
+	details: Record<string, unknown> | null;
+	createdAt: string;
+}
+
+export interface PreflightResult {
+	passed: boolean;
+	checks: Array<{
+		name: string;
+		passed: boolean;
+		message?: string;
+	}>;
+}
+
+export interface CreateDeploymentParams {
+	versionId: string;
+	planId?: string;
+	autoAdvance?: boolean;
+	name?: string;
+	ticketUrl?: string;
+}
+
+export class CanaryRollClient {
+	private baseUrl: string;
+	private token: string;
+	private teamId: string;
+
+	constructor(baseUrl: string, token: string, teamId: string) {
+		this.baseUrl = baseUrl.replace(/\/+$/, '');
+		this.token = token;
+		this.teamId = teamId;
+	}
+
+	private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+		const url = `${this.baseUrl}/api/teams/${this.teamId}${path}`;
+		const res = await fetch(url, {
+			...options,
+			headers: {
+				Authorization: `Bearer ${this.token}`,
+				'Content-Type': 'application/json',
+				...options.headers,
+			},
+		});
+
+		if (!res.ok) {
+			let message = `HTTP ${res.status}`;
+			try {
+				const body = (await res.json()) as { message?: string; error?: string };
+				message = body.message || body.error || message;
+			} catch {
+				// ignore parse errors
+			}
+			throw new Error(`CanaryRoll API error: ${message} (${res.status})`);
+		}
+
+		return res.json() as Promise<T>;
+	}
+
+	async createDeployment(workerId: string, params: CreateDeploymentParams): Promise<Deployment> {
+		return this.request<Deployment>(`/deployments/workers/${workerId}/deployments`, {
+			method: 'POST',
+			body: JSON.stringify(params),
+		});
+	}
+
+	async runPreflight(deploymentId: string): Promise<PreflightResult> {
+		return this.request<PreflightResult>(`/deployments/${deploymentId}/preflight`);
+	}
+
+	async startDeployment(deploymentId: string): Promise<Deployment> {
+		return this.request<Deployment>(`/deployments/${deploymentId}/start`, {
+			method: 'POST',
+		});
+	}
+
+	async getDeployment(deploymentId: string): Promise<Deployment> {
+		return this.request<Deployment>(`/deployments/${deploymentId}`);
+	}
+
+	async getDeploymentEvents(deploymentId: string): Promise<DeploymentEvent[]> {
+		return this.request<DeploymentEvent[]>(`/deployments/${deploymentId}/events`);
+	}
+}
