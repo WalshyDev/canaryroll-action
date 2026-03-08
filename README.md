@@ -12,7 +12,7 @@ Creates a deployment and runs preflight checks. By default the deployment is lef
 - uses: canaryroll/action@v1
   with:
     api-token: ${{ secrets.CANARYROLL_TOKEN }}
-    team-id: my-team
+    team-id: ${{ vars.CANARYROLL_WORKER_ID }}
     worker-id: ${{ vars.CANARYROLL_WORKER_ID }}
     version-id: ${{ steps.deploy.outputs.version-id }}
 ```
@@ -25,7 +25,7 @@ The deployment is created and ready to start. You'll be notified via your config
 - uses: canaryroll/action@v1
   with:
     api-token: ${{ secrets.CANARYROLL_TOKEN }}
-    team-id: my-team
+    team-id: ${{ vars.CANARYROLL_WORKER_ID }}
     worker-id: ${{ vars.CANARYROLL_WORKER_ID }}
     version-id: ${{ steps.deploy.outputs.version-id }}
     auto-start: 'true'
@@ -53,7 +53,7 @@ jobs:
         uses: canaryroll/action@v1
         with:
           api-token: ${{ secrets.CANARYROLL_TOKEN }}
-          team-id: my-team
+          team-id: ${{ vars.CANARYROLL_TEAM_ID }}
           worker-id: ${{ vars.CANARYROLL_WORKER_ID }}
           version-id: ${{ steps.deploy.outputs.version-id }}
           name: ${{ github.sha }}

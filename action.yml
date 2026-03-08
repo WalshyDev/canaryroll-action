@@ -28,7 +28,7 @@ inputs:
   auto-advance:
     description: 'Whether to auto-advance through rollout steps'
     required: false
-    default: true
+    default: 'true'
   name:
     description: 'Optional release name'
     required: false
@@ -38,11 +38,11 @@ inputs:
   auto-start:
     description: 'Automatically start the deployment after creation and preflight checks pass. If false, the deployment is left in pending status for manual start via the dashboard.'
     required: false
-    default: false
+    default: 'false'
   wait:
     description: 'Wait for the deployment to complete before finishing the action'
     required: false
-    default: false
+    default: 'false'
   wait-timeout:
     description: 'Maximum seconds to wait for deployment completion (only used if wait=true)'
     required: false
